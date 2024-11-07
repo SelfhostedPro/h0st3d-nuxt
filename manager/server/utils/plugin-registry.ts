@@ -1,5 +1,5 @@
 import { useStorage } from '#imports'
-import type { PluginManifest, PluginRegistry } from '~~/types'
+import { PluginManifestSchema, type PluginManifest, type PluginRegistry } from '~~/types'
 import type { TemplateInfo } from 'giget'
 
 /**
@@ -7,7 +7,7 @@ import type { TemplateInfo } from 'giget'
  */
 export class PluginRegistryManager {
     private storage = useStorage('data')
-    private STORAGE_KEY = 'data:plugins/registries'
+    private STORAGE_KEY = 'plugins/registries'
 
     /**
      * Get all registered plugin registries
@@ -27,31 +27,62 @@ export class PluginRegistryManager {
         if (registries.some(r => r.url === registry.url)) {
             throw new Error(`Registry with URL ${registry.url} already exists`)
         }
-        const test = await useStorage('data')
-        const meta = await test.getMeta('data')
         registries.push(registry)
-        console.log(`Adding registry: ${registry.url} to ${test} ${meta}`)
+        console.log(registry)
+        console.log(`Adding registry: ${registry.url} to ${this.STORAGE_KEY}`)
         await this.storage.setItem(this.STORAGE_KEY, registries)
         return registry
     }
 
-    async getRegistryPlugins(registryName: string): Promise<PluginManifest[]> {
-        const plugins: PluginManifest[] = []
-        const registry = await this.getRegistry(registryName)
-        if (!registry) {
-            throw new Error(`Registry ${registryName} not found`)
+    async getRegistryPlugins(registryName?: string): Promise<{ [key: string]: PluginManifest[] }> {
+        if (registryName) {
+            const registry = await this.getRegistry(registryName)
+            if (!registry) {
+                throw new Error(`Registry ${registryName} not found`)
+            }
+            const index = await this.readRegistryIndex(registry)
+            return { [registryName]: await this.readRegistryPlugins(registry, index) }
+        } else {
+            const registries = await this.getRegistries()
+            console.log(`Getting plugins for ${registries.length} registries: ${registries.map(r => r.name).join(', ')}`)
+            const plugins: { [key: string]: PluginManifest[] } = {}
+            for (const registry of registries) {
+                console.log(`Getting plugins for registry ${registry.name}`)
+                const index = await this.readRegistryIndex(registry)
+                console.log(`Index`, index)
+                plugins[registry.name] = await this.readRegistryPlugins(registry, index)
+            }
+            return plugins
         }
+    }
+
+    async readRegistryIndex(registry: PluginRegistry): Promise<string[]> {
         const response = await (await fetch(`${registry.url}/index.json`)).json() as string[]
-        console.log('Registry Index', response)
-        const promises = response.map(async (name) => {
-            const pluginRegistryInfo = await (await (await fetch(`${registry.url}/${name}.json`)).json()) as TemplateInfo
-            console.log('Plugin Registry Info', pluginRegistryInfo)
-            const pluginInfo = await (await fetch(`${pluginRegistryInfo.url || registry.url + '/' + name}/plugin.json`)).json() as PluginManifest
-            console.log('Plugin Info', pluginInfo)
-            plugins.push(pluginInfo)
-        })
-        await Promise.all(promises)
-        return plugins
+        return response
+    }
+
+    async readRegistryPlugins(registry: PluginRegistry, index: string[]): Promise<PluginManifest[]> {
+        const plugins: PluginManifest[] = [];
+
+        for (const name of index) {
+            console.log(`Getting plugin ${name} for registry ${registry.name}`)
+            console.log(`Fetching ${registry.url + name}.json`)
+            const templateInfo = await (await fetch(`${registry.url + name}.json`)).json() as TemplateInfo;
+            console.log(`Template info`, templateInfo)
+            console.log(`Fetching plugin.json for ${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/plugin.json`)
+            const pluginInfo = await $fetch(`${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/plugin.json`) as PluginManifest;
+            console.log(`Plugin info`, pluginInfo)
+            const isValid = PluginManifestSchema.safeParse(pluginInfo);
+            if (isValid.success) {
+                plugins.push(pluginInfo);
+            } else {
+                console.error(`Invalid plugin manifest for ${name}:`, isValid.error);
+            }
+        }
+        if (plugins.length === 0) {
+            throw new Error(`No valid plugins found in registry ${registry.name}`);
+        }
+        return plugins;
     }
 
     /**
@@ -64,7 +95,6 @@ export class PluginRegistryManager {
         if (filtered.length === registries.length) {
             return false
         }
-
         await this.storage.setItem(this.STORAGE_KEY, filtered)
         return true
     }
@@ -72,9 +102,9 @@ export class PluginRegistryManager {
     /**
      * Get a registry by URL
      */
-    async getRegistry(url: string): Promise<PluginRegistry | undefined> {
+    async getRegistry(name: string): Promise<PluginRegistry | undefined> {
         const registries = await this.getRegistries()
-        return registries.find(r => r.url === url)
+        return registries.find(r => r.name === name)
     }
 }
 

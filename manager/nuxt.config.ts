@@ -18,6 +18,14 @@ export default defineNuxtConfig({
      */
     componentDir: './app/components/ui'
   },
+  nitro: {
+    storage: {
+      data: {
+        driver: 'fs',
+        base: import.meta.env.DATA_DIR || '../data'
+      }
+    },
+  },
   tailwindcss: {
     config: {
       darkMode: 'class',

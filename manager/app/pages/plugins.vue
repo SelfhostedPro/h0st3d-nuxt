@@ -23,7 +23,7 @@
     <div v-if="error" class="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
       {{ error }}
     </div>
-    
+
     <div class="grid gap-4">
       <Card v-for="plugin in installedPlugins" :key="plugin.name">
         <CardHeader>
@@ -38,16 +38,10 @@
         <CardContent>
           <p class="text-sm text-muted-foreground mb-4">Version {{ plugin.version }}</p>
           <div class="space-x-2">
-            <Button 
-              variant="outline" 
-              @click="togglePlugin(plugin.id, !plugin.state.enabled)"
-            >
+            <Button variant="outline" @click="togglePlugin(plugin.id, !plugin.state.enabled)">
               {{ plugin.state.enabled ? 'Disable' : 'Enable' }}
             </Button>
-            <Button 
-              variant="destructive"
-              @click="removePlugin(plugin.id)"
-            >
+            <Button variant="destructive" @click="removePlugin(plugin.id)">
               Remove
             </Button>
           </div>
@@ -68,28 +62,17 @@
           <div v-if="isLoadingPlugins" class="text-center py-4">
             Loading available plugins...
           </div>
-          <div v-else-if="registryPlugins.length === 0" class="text-center py-4">
-            No plugins found in registries. Add a registry first.
+          <div v-else-if="registryPlugins && registryPlugins.length === 0" class="text-center py-4">
+            No registry plugins found. Check your registries.
           </div>
           <div v-else class="grid gap-4">
             <div class="grid gap-2">
               <Label for="plugin">Select Plugin</Label>
-              <select
-                id="plugin"
-                v-model="selectedPlugin"
-                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option :value="null">Select a plugin...</option>
-                <option
-                  v-for="plugin in registryPlugins"
-                  :key="plugin.name"
-                  :value="plugin"
-                >
-                  {{ plugin.name }} ({{ plugin.registry }})
-                </option>
-              </select>
+              <LazyPluginCard v-for="registry in registryPlugins" :key="registry.name" :registry="registry.name"
+                :plugins="registry.plugins" />
+              {{ registryPlugins }}
             </div>
-            
+
             <div v-if="selectedPlugin" class="space-y-2">
               <h4 class="font-medium">Plugin Details</h4>
               <div class="text-sm space-y-1">
@@ -105,10 +88,7 @@
           <Button variant="outline" @click="showInstallDialog = false">
             Cancel
           </Button>
-          <Button 
-            :disabled="isLoading" 
-            @click="installPlugin"
-          >
+          <Button :disabled="isLoading" @click="installPlugin">
             {{ isLoading ? 'Installing...' : 'Install' }}
           </Button>
         </DialogFooter>
@@ -119,14 +99,16 @@
 
 <script setup lang="ts">
 import { Plus, Server as ServerIcon } from 'lucide-vue-next'
-
-const { 
-  installedPlugins, 
-  isLoading, 
+import { usePluginManager } from '~/composables/usePluginManager'
+const {
+  installedPlugins,
+  isLoading,
   error: pluginError,
   installPlugin: install,
   togglePlugin,
-  removePlugin
+  removePlugin,
+  getRegistries,
+  getRegistryPlugins
 } = usePluginManager()
 
 // Sync pluginError with local error
@@ -146,7 +128,7 @@ const error = ref<string | null>(null)
 const fetchRegistryPlugins = async () => {
   try {
     isLoadingPlugins.value = true
-    const response = await $fetch('/api/plugins/registry-plugins')
+    const response = await getRegistryPlugins()
     registryPlugins.value = response
   } catch (error) {
     console.error('Failed to fetch registry plugins:', error)
@@ -158,7 +140,7 @@ const fetchRegistryPlugins = async () => {
 
 const installPlugin = async () => {
   if (!selectedPlugin.value) return
-  
+
   try {
     await install({
       name: selectedPlugin.value.name,

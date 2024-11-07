@@ -1,12 +1,13 @@
 import { ref } from 'vue'
-import type { Plugin, PluginRegistry } from '~/types'
+import type { Plugin, PluginManifest, PluginRegistry } from '~~/types'
 
 export const usePluginManager = () => {
   const installedPlugins = ref<Plugin[]>([])
   const registries = ref<PluginRegistry[]>([])
+  const registryPlugins = ref<{ [key: string]: PluginManifest[] }>({})
   const isLoading = ref(false)
   const error = ref<string | null>(null)
-  
+
   const installPlugin = async (plugin: { name: string, provider: string }) => {
     isLoading.value = true
     error.value = null
@@ -69,7 +70,17 @@ export const usePluginManager = () => {
     }
   }
 
+  const getRegistryPlugins = async () => {
+    try {
+      registryPlugins.value = await $fetch(`/api/plugins/registry-plugins`)
+    } catch (err: any) {
+      error.value = err.message || 'Failed to get registry plugins'
+      throw err
+    }
+  }
+
   const addRegistry = async (registry: { name: string, url: string, type: string }) => {
+    console.log('Adding Registry', registry)
     try {
       await $fetch('/api/plugins/registries', {
         method: 'POST',
@@ -94,7 +105,7 @@ export const usePluginManager = () => {
     }
   }
 
-  const getRegistryPlugins = async (registry: string) => {
+  const getRegistryPlugin = async (registry: string) => {
     try {
       return await $fetch(`/api/plugins/registry-plugins?registry=${encodeURIComponent(registry)}`)
     } catch (err: any) {

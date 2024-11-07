@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import { PluginRegistryManager } from '~~/server/utils/plugin-registry'
+import { pluginRegistry } from '~~/server/utils/plugin-registry'
 import { z } from 'zod'
 
 const AddRegistrySchema = z.object({
@@ -9,11 +9,9 @@ const AddRegistrySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event)
-    const registry = AddRegistrySchema.parse(body)
-
-    const registryManager = new PluginRegistryManager()
-    return await registryManager.addRegistry(registry)
+    const body = await readValidatedBody(event, AddRegistrySchema.parse)
+    console.log('Validated Registry Structure', body)
+    return await pluginRegistry.addRegistry(body)
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw createError({
