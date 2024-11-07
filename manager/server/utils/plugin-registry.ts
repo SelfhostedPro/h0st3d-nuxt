@@ -41,10 +41,13 @@ export class PluginRegistryManager {
         if (!registry) {
             throw new Error(`Registry ${registryName} not found`)
         }
-        const response = await (await fetch(registry.url)).json() as string[]
+        const response = await (await fetch(`${registry.url}/index.json`)).json() as string[]
+        console.log('Registry Index', response)
         const promises = response.map(async (name) => {
-            const pluginRegistryInfo = await (await (await fetch(`${registry.url}/${name}`)).json()) as TemplateInfo
+            const pluginRegistryInfo = await (await (await fetch(`${registry.url}/${name}.json`)).json()) as TemplateInfo
+            console.log('Plugin Registry Info', pluginRegistryInfo)
             const pluginInfo = await (await fetch(`${pluginRegistryInfo.url || registry.url + '/' + name}/plugin.json`)).json() as PluginManifest
+            console.log('Plugin Info', pluginInfo)
             plugins.push(pluginInfo)
         })
         await Promise.all(promises)
