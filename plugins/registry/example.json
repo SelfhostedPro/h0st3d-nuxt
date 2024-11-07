@@ -1,0 +1,7 @@
+{
+    "name": "example",
+    "defaultDir": "example",
+    "subdir": "plugins/registry/example-plugin",
+    "url": "https://github.com/SelfhostedPro/h0st3d-nuxt",
+    "tar": "https://codeload.github.com/SelfhostedPro/h0st3d-nuxt/tar.gz/refs/heads/main"
+}
