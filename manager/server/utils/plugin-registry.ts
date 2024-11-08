@@ -63,6 +63,7 @@ export class PluginRegistryManager {
         const plugins: PluginManifest[] = [];
 
         for (const name of index) {
+            console.log(`Reading plugin ${name} from registry ${registry.url + name}.json`)
             const templateInfo = await (await fetch(`${registry.url + name}.json`)).json() as TemplateInfo;
             const pluginInfo = await (await fetch(`${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/plugin.json?token=none`)).json() as PluginManifest;
             const isValid = PluginManifestSchema.safeParse(pluginInfo);
