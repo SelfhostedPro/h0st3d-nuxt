@@ -1,6 +1,6 @@
 {
-    "name": "example",
-    "defaultDir": "example",
+    "name": "example-plugin",
+    "defaultDir": "example-plugin",
     "subdir": "plugins/registry/example-plugin",
     "version": "main",
     "url": "https://raw.githubusercontent.com/SelfhostedPro/h0st3d-nuxt/",
