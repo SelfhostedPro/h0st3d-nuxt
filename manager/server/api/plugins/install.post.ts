@@ -6,10 +6,15 @@ import { addPluginSchema } from '~~/types'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readValidatedBody(event, addPluginSchema.parse)
+    const body = await readValidatedBody(event, body => addPluginSchema.safeParse(body))
+    if (!body.success) {
+      throw body.error.issues
+    }
+
+    const { name, registry } = body.data
 
     const downloader = new PluginDownloader()
-    const result = await downloader.download(body.name, body.registry, `${body.registry}/${body.name}`)
+    const result = await downloader.download(name, registry, `${registry}/${name}`)
 
     const state = await getPluginState()
     state[result.plugin.name] = result.plugin
@@ -18,12 +23,14 @@ export default defineEventHandler(async (event) => {
     return result
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.log(`Validation error: ${error.errors}`)
       throw createError({
         statusCode: 400,
         message: 'Invalid request body',
         data: error.errors
       })
     }
+    console.log(`Error: ${error}`)
     throw error
   }
 })

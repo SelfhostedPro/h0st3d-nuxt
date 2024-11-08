@@ -47,9 +47,7 @@ export class PluginRegistryManager {
             console.log(`Getting plugins for ${registries.length} registries: ${registries.map(r => r.name).join(', ')}`)
             const plugins: { [key: string]: PluginManifest[] } = {}
             for (const registry of registries) {
-                console.log(`Getting plugins for registry ${registry.name}`)
                 const index = await this.readRegistryIndex(registry)
-                console.log(`Index`, index)
                 plugins[registry.name] = await this.readRegistryPlugins(registry, index)
             }
             return plugins
@@ -65,13 +63,8 @@ export class PluginRegistryManager {
         const plugins: PluginManifest[] = [];
 
         for (const name of index) {
-            console.log(`Getting plugin ${name} for registry ${registry.name}`)
-            console.log(`Fetching ${registry.url + name}.json`)
             const templateInfo = await (await fetch(`${registry.url + name}.json`)).json() as TemplateInfo;
-            console.log(`Template info`, templateInfo)
-            console.log(`Fetching plugin.json for ${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/plugin.json`)
-            const pluginInfo = await $fetch(`${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/plugin.json`) as PluginManifest;
-            console.log(`Plugin info`, pluginInfo)
+            const pluginInfo = await (await fetch(`${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/plugin.json?token=none`)).json() as PluginManifest;
             const isValid = PluginManifestSchema.safeParse(pluginInfo);
             if (isValid.success) {
                 plugins.push(pluginInfo);
@@ -88,9 +81,9 @@ export class PluginRegistryManager {
     /**
      * Remove a plugin registry by URL
      */
-    async removeRegistry(url: string): Promise<boolean> {
+    async removeRegistry(name: string): Promise<boolean> {
         const registries = await this.getRegistries()
-        const filtered = registries.filter(r => r.url !== url)
+        const filtered = registries.filter(r => r.name !== name)
 
         if (filtered.length === registries.length) {
             return false

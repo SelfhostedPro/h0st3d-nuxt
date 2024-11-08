@@ -5,13 +5,9 @@ const PluginRegistrySchema = z.object({
     url: z.string(),
     auth: z.string().optional()
 })
-
-const GetPluginRegistrySchema = PluginRegistrySchema.extend({
-    auth: z.boolean().optional()
-})
-
 type PluginRegistry = z.infer<typeof PluginRegistrySchema>
-type GetPluginRegistry = z.infer<typeof GetPluginRegistrySchema>
+
+export { PluginRegistrySchema, type PluginRegistry }
 
 const addPluginSchema = z.object({
     name: z.string(),
@@ -27,11 +23,12 @@ const getPluginSchema = addPluginSchema.extend({
     description: z.string().optional()
 })
 
-type addPlugin = z.infer<typeof addPluginSchema>
+type AddPlugin = z.infer<typeof addPluginSchema>
 type GetPlugin = z.infer<typeof getPluginSchema>
 
+export { addPluginSchema, getPluginSchema, type AddPlugin, type GetPlugin }
 
-export const PluginManifestSchema = z.object({
+const PluginManifestSchema = z.object({
     name: z.string(),
     version: z.string(),
     description: z.string(),
@@ -45,23 +42,21 @@ export const PluginManifestSchema = z.object({
             component: z.string()
         })
     ).optional(),
-    provider: z.string().optional(), // ID of the provider
-    repository: z.string().optional() // Repository path/URL
 })
 
-export const PluginStateSchema = z.object({
+const PluginStateSchema = z.object({
     enabled: z.boolean(),
     installedAt: z.string(),
     lastUpdated: z.string(),
-    provider: z.string() // ID of the provider used
+    registry: z.string() // ID of the provider used
 })
 
-export type PluginManifest = z.infer<typeof PluginManifestSchema>
-export type PluginState = z.infer<typeof PluginStateSchema>
+type PluginManifest = z.infer<typeof PluginManifestSchema>
+type PluginState = z.infer<typeof PluginStateSchema>
+export { PluginManifestSchema, PluginStateSchema, type PluginManifest, type PluginState }
 
-export interface Plugin extends PluginManifest {
+interface Plugin extends PluginManifest {
     id: string
     state: PluginState
 }
-
-export { PluginRegistrySchema, GetPluginRegistrySchema, addPluginSchema, getPluginSchema, type PluginRegistry, type GetPluginRegistry, type addPlugin, type GetPlugin }
+export { type Plugin }

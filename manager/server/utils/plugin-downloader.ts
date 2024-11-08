@@ -19,7 +19,7 @@ export class PluginDownloader {
       // Download using giget
       const result = await downloadTemplate(pluginName, {
         dir: targetDir,
-        registry: registry.url,
+        registry: registry.url.endsWith('/') ? registry.url.slice(0, -1) : registry.url,
         auth: registry.auth,
         install: true
       })

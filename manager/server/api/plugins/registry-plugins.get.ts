@@ -1,7 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
-import { PluginRegistryManager, pluginRegistry } from '~~/server/utils/plugin-registry'
-import { z } from 'zod'
-import { PluginManifest, PluginManifestSchema } from '~~/types'
+import { pluginRegistry } from '~~/server/utils/plugin-registry'
+import { PluginManifest } from '~~/types'
 
 export default defineEventHandler(async (event): Promise<{ [key: string]: PluginManifest[] }> => {
   try {
@@ -9,7 +8,7 @@ export default defineEventHandler(async (event): Promise<{ [key: string]: Plugin
     if (!registry) {
       return await pluginRegistry.getRegistryPlugins()
     } else {
-      return await pluginRegistry.getRegistryPlugins()
+      return await pluginRegistry.getRegistryPlugins(registry)
     }
   } catch (error) {
     console.error('Failed to get registry plugins:', error)

@@ -3,7 +3,7 @@
     <h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-8">
       Dashboard
     </h1>
-    
+
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
@@ -30,11 +30,7 @@
           <CardDescription>Common management tasks</CardDescription>
         </CardHeader>
         <CardContent class="space-y-2">
-          <Button 
-            variant="outline" 
-            class="w-full justify-start"
-            @click="navigateToPlugins"
-          >
+          <Button variant="outline" class="w-full justify-start" @click="navigateToPlugins">
             <Settings class="mr-2 h-4 w-4" />
             Manage Plugins
           </Button>
@@ -46,18 +42,21 @@
 
 <script setup lang="ts">
 import { Settings } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
-const { installedPlugins } = usePluginManager()
+const store = usePluginStore()
+const { installedPlugins } = storeToRefs(store)
 
-const activePlugins = computed(() => 
+const activePlugins = computed(() =>
   installedPlugins.value.filter(p => p.state.enabled).length
 )
 
 const uptime = ref('0:00:00')
 
-// Simple uptime counter
 onMounted(() => {
+  store.refreshPlugins()
+
   const start = new Date()
   setInterval(() => {
     const diff = new Date(new Date().getTime() - start.getTime())
@@ -68,7 +67,5 @@ onMounted(() => {
   }, 1000)
 })
 
-const navigateToPlugins = () => {
-  router.push('/plugins')
-}
+const navigateToPlugins = () => router.push('/plugins')
 </script>
