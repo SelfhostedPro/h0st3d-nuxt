@@ -1,5 +1,5 @@
 import { defineEventHandler, createError } from 'h3'
-import { pluginRegistry } from '~~/server/utils/plugin-registry'
+import { pluginRegistry } from '~~/server/utils/plugins/plugin-registry'
 import { PluginManifest } from '~~/types'
 
 export default defineEventHandler(async (event): Promise<{ [key: string]: PluginManifest[] }> => {

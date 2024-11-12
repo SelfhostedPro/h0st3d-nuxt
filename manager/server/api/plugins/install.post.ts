@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { z } from 'zod'
-import { PluginDownloader } from '~~/server/utils/plugin-downloader'
-import { getPluginState, savePluginState } from '~~/server/utils/plugin-state'
+import { PluginDownloader } from '~~/server/utils/plugins/plugin-downloader'
+import { getPluginState, savePluginState } from '~~/server/utils/plugins/plugin-state'
 import { addPluginSchema } from '~~/types'
 
 export default defineEventHandler(async (event) => {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     const result = await downloader.download(name, registry, `${registry}/${name}`)
 
     const state = await getPluginState()
-    state[result.plugin.name] = result.plugin
+    state[`${registry}/${name}`] = result.plugin
     await savePluginState(state)
 
     return result

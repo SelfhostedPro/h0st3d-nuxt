@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import { pluginRegistry } from '~~/server/utils/plugin-registry'
+import { pluginRegistry } from '~~/server/utils/plugins/plugin-registry'
 import { z } from 'zod'
 
 const AddRegistrySchema = z.object({

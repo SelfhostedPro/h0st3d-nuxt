@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { PluginRegistryManager } from '~~/server/utils/plugin-registry'
+import { PluginRegistryManager } from '~~/server/utils/plugins/plugin-registry'
 import { z } from 'zod'
 
 const DeleteRegistrySchema = z.object({

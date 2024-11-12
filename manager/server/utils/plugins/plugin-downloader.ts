@@ -21,7 +21,8 @@ export class PluginDownloader {
         dir: targetDir,
         registry: registry.url.endsWith('/') ? registry.url.slice(0, -1) : registry.url,
         auth: registry.auth,
-        install: true
+        install: true,
+        forceClean: true
       })
 
       return result

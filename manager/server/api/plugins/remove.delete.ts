@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { getPluginState, savePluginState } from '~~/server/utils/plugin-state'
+import { getPluginState, savePluginState } from '~~/server/utils/plugins/plugin-state'
 import { z } from 'zod'
 
 const RemovePluginSchema = z.object({
