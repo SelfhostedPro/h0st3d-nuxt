@@ -18,12 +18,12 @@
           >
             Plugins
           </NuxtLink>
-          <NuxtLink
+          <!-- <NuxtLink
             to="/registries"
             class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             Registries
-          </NuxtLink>
+          </NuxtLink> -->
         </nav>
       </div>
     </header>

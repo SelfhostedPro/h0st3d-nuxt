@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const eventStream = createEventStream(event)
 
     // Create a stream from the health service
-    const healthStream = healthService.streamHealthInfo()
+    const healthStream = await healthService.streamHealthInfo()
     const reader = healthStream.getReader()
 
     const encoder = new TextEncoder()
@@ -28,10 +28,11 @@ export default defineEventHandler(async (event) => {
         }
     })
 
-    eventStream.onClosed(() => {
-        reader.cancel('Stream closed')
-        returnStream.cancel('Stream closed')
-        healthStream.cancel('Stream closed')
+    eventStream.onClosed(async () => {
+        await reader.cancel('Stream closed')
+        reader.releaseLock()
+        await returnStream.cancel('Stream closed')
+        await healthStream.cancel('Stream closed')
     })
 
     return eventStream.send()

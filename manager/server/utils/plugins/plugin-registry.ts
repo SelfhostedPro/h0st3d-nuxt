@@ -7,7 +7,7 @@ import type { TemplateInfo } from 'giget'
  */
 export class PluginRegistryManager {
     private storage = useStorage('data')
-    private STORAGE_KEY = 'plugins/registries'
+    private STORAGE_KEY = 'plugins/registries.json'
 
     /**
      * Get all registered plugin registries

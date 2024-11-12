@@ -1,13 +1,29 @@
-export class ProcessHealthService {
-    getHealthInfo(): ProcessHealthInfo {
-        const memoryUsage = process.memoryUsage();
+import type { ProcessHealthInfo } from '~~/types';
+import { totalmem, cpus, loadavg, uptime, networkInterfaces, platform } from 'node:os';
+import { checkSync } from 'diskusage';
 
+let rootPath = platform() === 'win32' ? 'c:' : '/';
+export class ProcessHealthService {
+    async getHealthInfo(): Promise<ProcessHealthInfo> {
+        const memoryUsage = process.memoryUsage();
+        const load = loadavg();
+        const totalcpus = cpus().length;
+        const totalmemory = totalmem();
+        const hostUptime = uptime();
+        const diskUsage = checkSync(rootPath);
         return {
             uptime: process.uptime(),
             memoryUsage: {
-                heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024),
-                heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
-                rss: Math.round(memoryUsage.rss / 1024 / 1024),
+                heapTotal: Math.round(memoryUsage.heapTotal),
+                heapUsed: Math.round(memoryUsage.heapUsed),
+                rss: Math.round(memoryUsage.rss),
+            },
+            hostInfo: {
+                load: load,
+                totalcpus: totalcpus,
+                totalmem: totalmemory,
+                uptime: hostUptime,
+                diskUsage: diskUsage
             },
             cpuUsage: process.cpuUsage(),
             pid: process.pid,
@@ -16,12 +32,12 @@ export class ProcessHealthService {
         };
     }
 
-    streamHealthInfo(): ReadableStream<ProcessHealthInfo> {
+    async streamHealthInfo(): Promise<ReadableStream<ProcessHealthInfo>> {
         return new ReadableStream({
             start: (controller) => {
-                const interval = setInterval(() => {
+                const interval = setInterval(async () => {
                     try {
-                        controller.enqueue(this.getHealthInfo());
+                        controller.enqueue(await this.getHealthInfo());
                     } catch (error) {
                         controller.error(error);
                     }
@@ -34,22 +50,6 @@ export class ProcessHealthService {
             }
         });
     }
-}
-
-interface ProcessHealthInfo {
-    uptime: number; // Seconds process has been running
-    memoryUsage: {
-        heapTotal: number; // Total heap size in MB
-        heapUsed: number; // Used heap size in MB
-        rss: number; // Resident set size in MB
-    };
-    cpuUsage: {
-        user: number; // CPU time spent in user code
-        system: number; // CPU time spent in system code
-    };
-    pid: number; // Process ID
-    platform: string; // Operating system platform
-    nodeVersion: string; // Node.js version
 }
 
 export const healthService = new ProcessHealthService();

@@ -1,7 +1,7 @@
 import { useStorage } from '#imports'
 import type { Plugin } from '~~/types'
 
-const PLUGINS_STORAGE_KEY = 'plugins:installed.json'
+const PLUGINS_STORAGE_KEY = 'plugins/installed.json'
 
 export const getPluginState = async (): Promise<Record<string, Plugin>> => {
   const storage = useStorage()
