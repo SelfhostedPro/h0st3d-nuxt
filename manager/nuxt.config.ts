@@ -1,5 +1,3 @@
-import type { HookResult } from "@nuxt/schema";
-import type { Serializable } from 'node:child_process'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
@@ -28,7 +26,7 @@ export default defineNuxtConfig({
     storage: {
       data: {
         driver: 'fs',
-        base: import.meta.env.DATA_DIR || '../data'
+        base: `${import.meta.env.DATA_DIR || '../data'}/manager`
       }
     },
   },
@@ -46,20 +44,3 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ]
 })
-
-declare module '#app' {
-  interface RuntimeNuxtHooks {
-    'your-nuxt-runtime-hook': () => HookResult
-  }
-  interface NuxtHooks {
-    'your-nuxt-hook': () => HookResult
-  }
-}
-
-declare module 'nitropack' {
-  interface NitroRuntimeHooks {
-    'base:message': (message: Serializable) => void;
-    'base:rebuild': (reason?: string) => void;
-    'base:error': () => void;
-  }
-}

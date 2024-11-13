@@ -6,6 +6,12 @@ export default defineNuxtConfig({
   },
   nitro: {
     // preset: 'bun',
+    storage: {
+      data: {
+        driver: 'fs',
+        base: `${import.meta.env.DATA_DIR || '../data'}/base`
+      }
+    },
   },
   routeRules: {
     '/manager/**': { proxy: { to: 'http://localhost:3005/manager/**' } }

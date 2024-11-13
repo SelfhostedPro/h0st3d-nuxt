@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody, createError } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import { z } from 'zod'
 import { pluginDownloader } from '~~/server/utils/plugins/plugin-downloader'
 import { getPluginsState, savePluginState } from '~~/server/utils/plugins/plugin-state'

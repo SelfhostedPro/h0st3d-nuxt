@@ -1,7 +1,6 @@
 import { downloadTemplate, DownloadTemplateResult } from 'giget'
 import { pluginRegistry } from './plugin-registry'
 import { env } from 'node:process'
-import { existsSync } from 'node:fs'
 
 /**
  * Handles downloading plugins from git providers using giget
@@ -13,7 +12,7 @@ export class PluginDownloader {
   async download(pluginName: string, registryName: string, targetDir: string): Promise<DownloadTemplateResult> {
     try {
       const registry = await pluginRegistry.getRegistry(registryName)
-      const storagePath = env.DATA_DIR || '../data'
+      const storagePath = `${env.DATA_DIR || '../data'}/manager`
 
       if (!registry) {
         throw new Error(`Registry ${registryName} not found`)

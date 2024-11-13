@@ -1,4 +1,5 @@
-import { cp, readFile, writeFile, mkdir, exists, rmdir } from 'node:fs/promises'
+import { cp, readFile, writeFile, mkdir, rmdir } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import { NuxtConfig } from 'nuxt/config'
 import type { PackageJson } from 'type-fest'
 
@@ -18,7 +19,7 @@ export class PluginManager {
 
         const pluginPackageJsonPath = `${state.path}/package.json`
 
-        const pluginHasPackageJson = await exists(pluginPackageJsonPath)
+        const pluginHasPackageJson = existsSync(pluginPackageJsonPath)
 
         console.log(`Adding plugin to base nuxt config: ${baseNuxtConfigPath}`)
         if (Array.isArray(baseNuxtConfig.extends)) {
