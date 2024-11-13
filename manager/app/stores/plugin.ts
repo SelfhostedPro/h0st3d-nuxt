@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import type { Plugin, PluginManifest, PluginRegistry } from '~~/types'
+import type { ExternalPluginManifest, Plugin, PluginManifest, PluginRegistry } from '~~/types'
 
 export const usePluginStore = defineStore('plugin', {
     state: () => ({
         installedPlugins: [] as Plugin[],
         registries: [] as PluginRegistry[],
-        registryPlugins: {} as { [key: string]: PluginManifest[] },
+        registryPlugins: {} as { [key: string]: ExternalPluginManifest[] },
         isLoading: false,
         isRegistryLoading: false,
         error: null as string | null,
@@ -44,25 +44,40 @@ export const usePluginStore = defineStore('plugin', {
                 this.isLoading = false
             }
         },
-        async togglePlugin(name: string, enabled: boolean) {
+        // async togglePlugin(name: string, enabled: boolean) {
+        //     this.isLoading = true
+        //     try {
+        //         await $fetch('/api/plugins/toggle', {
+        //             method: 'POST',
+        //             body: { name, enabled }
+        //         })
+        //         await this.refreshPlugins()
+        //     } catch (err: any) {
+        //         this.error = err.message || 'Failed to toggle plugin'
+        //         throw err
+        //     } finally {
+        //         this.isLoading = false
+        //     }
+        // },
+        async enablePlugin(id: string) {
             this.isLoading = true
             try {
-                await $fetch('/api/plugins/toggle', {
+                await $fetch('/api/plugins/enable', {
                     method: 'POST',
-                    body: { name, enabled }
+                    body: { id }
                 })
                 await this.refreshPlugins()
             } catch (err: any) {
-                this.error = err.message || 'Failed to toggle plugin'
+                this.error = err.message || 'Failed to enable plugin'
                 throw err
             } finally {
                 this.isLoading = false
             }
         },
-        async enablePlugin(id: string) {
+        async disablePlugin(id: string) {
             this.isLoading = true
             try {
-                await $fetch('/api/plugins/activate', {
+                await $fetch('/api/plugins/disable', {
                     method: 'POST',
                     body: { id }
                 })
@@ -139,7 +154,7 @@ export const usePluginStore = defineStore('plugin', {
         async getRegistryPlugins() {
             this.isRegistryLoading = true
             try {
-                const response = await $fetch<{ [key: string]: PluginManifest[] }>('/api/plugins/registry-plugins')
+                const response = await $fetch<{ [key: string]: ExternalPluginManifest[] }>('/api/plugins/registry-plugins')
                 this.registryPlugins = response
             } catch (err: any) {
                 this.registryError = err.message || 'Failed to get registry plugins'

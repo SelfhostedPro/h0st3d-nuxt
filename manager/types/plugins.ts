@@ -27,23 +27,16 @@ type AddPlugin = z.infer<typeof addPluginSchema>
 type GetPlugin = z.infer<typeof getPluginSchema>
 
 export { addPluginSchema, getPluginSchema, type AddPlugin, type GetPlugin }
-
 const PluginManifestSchema = z.object({
     id: z.string(),
     name: z.string(),
     version: z.string(),
-    description: z.string(),
-    author: z.string(),
-    entry: z.string(),
-    dependencies: z.record(z.string()),
-    components: z.array(z.string()).optional(),
-    routes: z.array(
-        z.object({
-            path: z.string(),
-            component: z.string()
-        })
-    ).optional(),
+    description: z.string().optional(),
+    author: z.string().or(z.object({ name: z.string(), email: z.string().optional(), url: z.string().optional() })).optional(),
+    dependencies: z.record(z.string().optional()).optional(),
 })
+
+const ExternalPluginManifestSchema = PluginManifestSchema.extend({ id: z.undefined() })
 
 const PluginStateSchema = z.object({
     id: z.string(),
@@ -57,7 +50,8 @@ const PluginStateSchema = z.object({
 
 type PluginManifest = z.infer<typeof PluginManifestSchema>
 type PluginState = z.infer<typeof PluginStateSchema>
-export { PluginManifestSchema, PluginStateSchema, type PluginManifest, type PluginState }
+type ExternalPluginManifest = z.infer<typeof ExternalPluginManifestSchema>
+export { PluginManifestSchema, PluginStateSchema, ExternalPluginManifestSchema, type PluginManifest, type PluginState, type ExternalPluginManifest }
 
 interface Plugin extends PluginManifest {
     id: string

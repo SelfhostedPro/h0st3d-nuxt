@@ -1,7 +1,8 @@
 import { useStorage } from '#imports'
-import { PluginManifestSchema, type PluginManifest, type PluginRegistry } from '~~/types'
+import { ExternalPluginManifest, ExternalPluginManifestSchema, PluginManifestSchema, type PluginManifest, type PluginRegistry } from '~~/types'
 import type { TemplateInfo } from 'giget'
-
+import type { PackageJson } from 'type-fest'
+import { z } from 'zod'
 /**
  * Manages plugin registries using Nitro's storage
  */
@@ -34,7 +35,7 @@ export class PluginRegistryManager {
         return registry
     }
 
-    async getRegistryPlugins(registryName?: string): Promise<{ [key: string]: PluginManifest[] }> {
+    async getRegistryPlugins(registryName?: string): Promise<{ [key: string]: ExternalPluginManifest[] }> {
         if (registryName) {
             const registry = await this.getRegistry(registryName)
             if (!registry) {
@@ -45,7 +46,7 @@ export class PluginRegistryManager {
         } else {
             const registries = await this.getRegistries()
             console.log(`Getting plugins for ${registries.length} registries: ${registries.map(r => r.name).join(', ')}`)
-            const plugins: { [key: string]: PluginManifest[] } = {}
+            const plugins: { [key: string]: ExternalPluginManifest[] } = {}
             for (const registry of registries) {
                 const index = await this.readRegistryIndex(registry)
                 plugins[registry.name] = await this.readRegistryPlugins(registry, index)
@@ -60,13 +61,22 @@ export class PluginRegistryManager {
         return response
     }
 
-    async readRegistryPlugins(registry: PluginRegistry, index: string[]): Promise<PluginManifest[]> {
-        const plugins: PluginManifest[] = [];
+    async readRegistryPlugins(registry: PluginRegistry, index: string[]): Promise<ExternalPluginManifest[]> {
+        const plugins: ExternalPluginManifest[] = [];
 
         for (const name of index) {
             const templateInfo = await (await fetch(`${registry.url + name}.json`)).json() as TemplateInfo;
-            const pluginInfo = await (await fetch(`${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/plugin.json?token=none`)).json() as PluginManifest;
-            const isValid = PluginManifestSchema.safeParse(pluginInfo);
+            const pluginPackageInfo = await (await fetch(`${templateInfo.url}/refs/heads/${templateInfo.version || 'main'}/${templateInfo.subdir}/package.json?token=none`)).json() as PackageJson;
+            const pluginInfo = {
+                name: name,
+                version: pluginPackageInfo.version || templateInfo.version || 'main',
+                description: pluginPackageInfo.description,
+                author: pluginPackageInfo.author,
+                dependencies: { ...pluginPackageInfo.dependencies, ...pluginPackageInfo.devDependencies },
+            }
+            // console.log(`Reading plugin manifest for ${name}:`, pluginInfo)
+            // Remove id from plugin manifest schema for reading from registry
+            const isValid = ExternalPluginManifestSchema.safeParse(pluginInfo);
             if (isValid.success) {
                 plugins.push(pluginInfo);
             } else {

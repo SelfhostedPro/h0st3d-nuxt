@@ -31,15 +31,25 @@
                                     : 'hover:bg-muted/50'
                             ]">
                                 <CardHeader>
-                                    <CardTitle>{{ plugin.name }} <Badge variant="outline">{{ registry }}</Badge>
+                                    <CardTitle>{{ plugin.name }}
                                     </CardTitle>
                                     <CardDescription>{{ plugin.description }}</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <p class="text-sm text-muted-foreground">Version: {{ plugin.version }}</p>
+                                    <p v-if="plugin.description" class="text-sm"> {{ plugin.description }}</p>
                                     <p v-if="plugin.author" class="text-sm text-muted-foreground">
                                         Author: {{ plugin.author }}
                                     </p>
+                                    <div v-if="plugin.dependencies" class="text-sm text-muted-foreground">
+                                        Dependencies:
+                                        <div class="flex flex-row flex-wrap gap-2">
+                                            <Badge v-for="(version, dependency) in plugin.dependencies"
+                                                :key="dependency" variant="secondary">
+                                                {{ dependency }}@{{ version }}
+                                            </Badge>
+                                        </div>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
@@ -61,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AddPlugin, PluginManifest } from '~~/types'
+import type { AddPlugin, ExternalPluginManifest, PluginManifest } from '~~/types'
 import { Card } from '~/components/ui/card'
 import { Database, PackageX } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
@@ -70,7 +80,7 @@ const store = usePluginStore()
 const { isRegistryLoading } = storeToRefs(store)
 
 const props = defineProps<{
-    registries: Record<string, PluginManifest[]>,
+    registries: Record<string, ExternalPluginManifest[]>,
     selectedPlugin?: AddPlugin | null
 }>()
 
@@ -78,7 +88,7 @@ const emit = defineEmits<{
     select: [AddPlugin | null]
 }>()
 
-const handleSelect = (registry: string, plugin: PluginManifest) => {
+const handleSelect = (registry: string, plugin: ExternalPluginManifest) => {
     if (props.selectedPlugin?.name === plugin.name && props.selectedPlugin?.registry === registry) {
         emit('select', null)
     } else {

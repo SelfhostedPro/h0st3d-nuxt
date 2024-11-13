@@ -16,5 +16,5 @@ export default defineNuxtConfig({
   routeRules: {
     '/manager/**': { proxy: { to: 'http://localhost:3005/manager/**' } }
   },
-  devtools: { enabled: true }
+  devtools: { enabled: false }
 })

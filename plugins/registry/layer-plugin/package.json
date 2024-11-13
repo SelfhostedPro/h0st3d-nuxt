@@ -1,5 +1,10 @@
 {
   "name": "my-nuxt-layer",
+  "author": {
+    "name": "SelfhostedPro",
+    "email": "info@selfhosted.pro",
+    "url": "https://selfhosted.pro"
+  },
   "type": "module",
   "version": "0.0.1",
   "main": "./nuxt.config.ts",

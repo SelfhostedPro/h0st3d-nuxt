@@ -1,8 +1,8 @@
 import { defineEventHandler, createError } from 'h3'
 import { pluginRegistry } from '~~/server/utils/plugins/plugin-registry'
-import { PluginManifest } from '~~/types'
+import { ExternalPluginManifest, PluginManifest } from '~~/types'
 
-export default defineEventHandler(async (event): Promise<{ [key: string]: PluginManifest[] }> => {
+export default defineEventHandler(async (event): Promise<{ [key: string]: ExternalPluginManifest[] }> => {
   try {
     const registry = getQuery(event).registry as string
     if (!registry) {

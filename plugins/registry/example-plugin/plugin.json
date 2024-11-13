@@ -2,7 +2,7 @@
   "name": "example-plugin",
   "version": "1.0.0",
   "description": "A simple example plugin that demonstrates the plugin system",
-  "author": "Your Name",
+  "author": "SelfhostedPro",
   "entry": "src/index.ts",
   "dependencies": {
     "@vueuse/core": "^10.7.0"
