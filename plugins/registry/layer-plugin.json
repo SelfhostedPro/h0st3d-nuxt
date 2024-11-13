@@ -1,0 +1,8 @@
+{
+    "name": "layer-plugin",
+    "defaultDir": "layer-plugin",
+    "subdir": "plugins/registry/layer-plugin",
+    "version": "main",
+    "url": "https://raw.githubusercontent.com/SelfhostedPro/h0st3d-nuxt/",
+    "tar": "https://codeload.github.com/SelfhostedPro/h0st3d-nuxt/tar.gz/refs/heads/main"
+}

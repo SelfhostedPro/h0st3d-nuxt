@@ -4,5 +4,11 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+  nitro: {
+    // preset: 'bun',
+  },
+  routeRules: {
+    '/manager/**': { proxy: { to: 'http://localhost:3005/manager/**' } }
+  },
   devtools: { enabled: true }
 })

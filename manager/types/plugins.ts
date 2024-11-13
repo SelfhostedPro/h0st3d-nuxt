@@ -29,6 +29,7 @@ type GetPlugin = z.infer<typeof getPluginSchema>
 export { addPluginSchema, getPluginSchema, type AddPlugin, type GetPlugin }
 
 const PluginManifestSchema = z.object({
+    id: z.string(),
     name: z.string(),
     version: z.string(),
     description: z.string(),
@@ -45,9 +46,12 @@ const PluginManifestSchema = z.object({
 })
 
 const PluginStateSchema = z.object({
+    id: z.string(),
+    path: z.string(),
     enabled: z.boolean(),
     installedAt: z.string(),
     lastUpdated: z.string(),
+    source: z.string(),
     registry: z.string() // ID of the provider used
 })
 
@@ -59,4 +63,5 @@ interface Plugin extends PluginManifest {
     id: string
     state: PluginState
 }
+
 export { type Plugin }

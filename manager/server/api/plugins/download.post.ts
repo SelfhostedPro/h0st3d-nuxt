@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { z } from 'zod'
-import { PluginDownloader } from '~~/server/utils/plugins/plugin-downloader'
-import { getPluginState, savePluginState } from '~~/server/utils/plugins/plugin-state'
+import { pluginDownloader } from '~~/server/utils/plugins/plugin-downloader'
+import { getPluginsState, savePluginState } from '~~/server/utils/plugins/plugin-state'
 import { addPluginSchema } from '~~/types'
 
 export default defineEventHandler(async (event) => {
@@ -13,14 +13,23 @@ export default defineEventHandler(async (event) => {
 
     const { name, registry } = body.data
 
-    const downloader = new PluginDownloader()
-    const result = await downloader.download(name, registry, `${registry}/${name}`)
+    const { source, dir } = await pluginDownloader.download(name, registry, `${registry}/${name}`)
 
-    const state = await getPluginState()
-    state[`${registry}/${name}`] = result.plugin
-    await savePluginState(state)
+    const state = await getPluginsState()
 
-    return result
+
+
+    state[`${registry}/${name}`] = {
+      id: `${registry}/${name}`,
+      path: dir,
+      enabled: false,
+      installedAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      source,
+      registry
+    }
+
+    return await savePluginState(state)
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.log(`Validation error: ${error.errors}`)

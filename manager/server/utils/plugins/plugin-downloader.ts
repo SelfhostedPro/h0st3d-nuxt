@@ -1,6 +1,7 @@
 import { downloadTemplate, DownloadTemplateResult } from 'giget'
 import { pluginRegistry } from './plugin-registry'
 import { env } from 'node:process'
+import { existsSync } from 'node:fs'
 
 /**
  * Handles downloading plugins from git providers using giget
@@ -26,7 +27,7 @@ export class PluginDownloader {
         dir: `${storagePath}/downloaded/${targetDir}`,
         registry: registry.url.endsWith('/') ? registry.url.slice(0, -1) : registry.url,
         auth: registry.auth,
-        install: true,
+        install: false,
         forceClean: true
       })
 

@@ -13,12 +13,12 @@ export const usePluginStore = defineStore('plugin', {
     }),
 
     actions: {
-        async installPlugin(plugin: { name: string, registry: string }) {
+        async downloadPlugin(plugin: { name: string, registry: string }) {
             this.isLoading = true
             this.error = null
             try {
                 console.log('Installing plugin:', plugin)
-                await $fetch('/api/plugins/install', {
+                await $fetch('/api/plugins/download', {
                     method: 'POST',
                     body: plugin
                 })
@@ -44,7 +44,6 @@ export const usePluginStore = defineStore('plugin', {
                 this.isLoading = false
             }
         },
-
         async togglePlugin(name: string, enabled: boolean) {
             this.isLoading = true
             try {
@@ -60,7 +59,21 @@ export const usePluginStore = defineStore('plugin', {
                 this.isLoading = false
             }
         },
-
+        async enablePlugin(id: string) {
+            this.isLoading = true
+            try {
+                await $fetch('/api/plugins/activate', {
+                    method: 'POST',
+                    body: { id }
+                })
+                await this.refreshPlugins()
+            } catch (err: any) {
+                this.error = err.message || 'Failed to enable plugin'
+                throw err
+            } finally {
+                this.isLoading = false
+            }
+        },
         async removePlugin(name: string) {
             this.isLoading = true
             try {

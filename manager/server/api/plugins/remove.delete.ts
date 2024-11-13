@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { getPluginState, savePluginState } from '~~/server/utils/plugins/plugin-state'
+import { getPluginsState, savePluginState } from '~~/server/utils/plugins/plugin-state'
 import { z } from 'zod'
 
 const RemovePluginSchema = z.object({
@@ -11,11 +11,18 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const { name } = RemovePluginSchema.parse(query)
 
-    const state = await getPluginState()
+    const state = await getPluginsState()
     if (!state[name]) {
       throw createError({
         statusCode: 404,
         message: `Plugin ${name} not found`
+      })
+    }
+
+    if (state[name].enabled) {
+      throw createError({
+        statusCode: 400,
+        message: `Plugin ${name} is enabled, deactivate it first`
       })
     }
 
