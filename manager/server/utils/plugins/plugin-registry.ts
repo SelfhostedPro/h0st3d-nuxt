@@ -45,7 +45,6 @@ export class PluginRegistryManager {
             return { [registryName]: await this.readRegistryPlugins(registry, index) }
         } else {
             const registries = await this.getRegistries()
-            console.log(`Getting plugins for ${registries.length} registries: ${registries.map(r => r.name).join(', ')}`)
             const plugins: { [key: string]: ExternalPluginManifest[] } = {}
             for (const registry of registries) {
                 const index = await this.readRegistryIndex(registry)
@@ -57,7 +56,6 @@ export class PluginRegistryManager {
 
     async readRegistryIndex(registry: PluginRegistry): Promise<string[]> {
         const response = await (await fetch(`${registry.url}/index.json?token=none`)).json() as string[]
-        console.log(`Read index for ${registry.name}: ${response.join(', ')}`)
         return response
     }
 

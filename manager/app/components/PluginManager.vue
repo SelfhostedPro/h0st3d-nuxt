@@ -18,12 +18,12 @@
 
         <ErrorAlert v-if="error" :message="error" class="mb-4" @dismiss="store.clearErrors()" />
 
-        <plugins-list :plugins="installedPlugins" :is-loading="isLoading" @toggle="handleToggle"
+        <plugins-list :plugins="downloadedPlugins" :is-loading="isLoading" @toggle="handleToggle"
             @remove="handleRemove" />
 
-        <plugins-dialogs-install v-model:open="showInstallDialog" v-model:selected-plugin="selectedPlugin"
+        <plugins-dialogs-download v-model:open="showInstallDialog" v-model:selected-plugin="selectedPlugin"
             :registries="registryPlugins" :is-loading="isRegistryLoading" :installing="isLoading"
-            @install="handleInstall()" />
+            @download="handleDownload()" />
 
         <plugins-dialogs-registry v-model="showRegistryDialog" />
     </div>
@@ -36,7 +36,7 @@ import { storeToRefs } from 'pinia'
 
 const store = usePluginStore()
 const {
-    installedPlugins,
+    downloadedPlugins,
     registryPlugins,
     isLoading,
     isRegistryLoading,
@@ -53,9 +53,13 @@ onMounted(() => {
     store.getRegistryPlugins()
 })
 
-const handleToggle = async (name: string, enabled: boolean) => {
+const handleToggle = async (name: string, enable: boolean) => {
     try {
-        await store.togglePlugin(name, enabled)
+        if (enable) {
+            await store.enablePlugin(name)
+        } else {
+            await store.disablePlugin(name)
+        }
     } catch (err) {
         // Error is handled by store
     }
@@ -69,12 +73,10 @@ const handleRemove = async (name: string) => {
     }
 }
 
-const handleInstall = async () => {
-    console.log('selectedPlugin', selectedPlugin.value)
+const handleDownload = async () => {
     if (!selectedPlugin.value) return
-
     try {
-        await store.installPlugin({
+        await store.downloadPlugin({
             name: selectedPlugin.value.name,
             registry: selectedPlugin.value.registry
         })

@@ -10,6 +10,9 @@
 </template>
 
 <script setup lang="ts">
+import { Alert, AlertTitle, AlertDescription } from '~/components/ui/alert'
+import { Button } from '~/components/ui/button'
+import { X, AlertCircle } from 'lucide-vue-next'
 defineProps<{
     message: string
 }>()

@@ -33,14 +33,23 @@
                                 <CardHeader>
                                     <CardTitle>{{ plugin.name }}
                                     </CardTitle>
-                                    <CardDescription>{{ plugin.description }}</CardDescription>
+                                    <CardDescription v-if="plugin.description">{{ plugin.description }}</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <p class="text-sm text-muted-foreground">Version: {{ plugin.version }}</p>
-                                    <p v-if="plugin.description" class="text-sm"> {{ plugin.description }}</p>
-                                    <p v-if="plugin.author" class="text-sm text-muted-foreground">
-                                        Author: {{ plugin.author }}
-                                    </p>
+                                    <div v-if="plugin.author" class="text-sm text-muted-foreground">
+                                        <div v-if="typeof plugin.author === 'string'">
+                                            Author: {{ plugin.author }}
+                                        </div>
+                                        <div v-else>
+                                            Author:
+                                            <NuxtLink v-if="plugin.author.url" :to="plugin.author.url" target="_blank">
+                                                <Button size="sm" variant="link">
+                                                    {{ plugin.author.name }}
+                                                </Button>
+                                            </NuxtLink>
+                                        </div>
+                                    </div>
                                     <div v-if="plugin.dependencies" class="text-sm text-muted-foreground">
                                         Dependencies:
                                         <div class="flex flex-row flex-wrap gap-2">
@@ -73,9 +82,12 @@
 <script setup lang="ts">
 import type { AddPlugin, ExternalPluginManifest, PluginManifest } from '~~/types'
 import { Card } from '~/components/ui/card'
+import { Button } from '~/components/ui/button'
+import { Avatar } from '~/components/ui/avatar'
 import { Database, PackageX } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
-
+import AvatarImage from '~/components/ui/avatar/AvatarImage.vue'
+import { ExternalLink } from 'lucide-vue-next'
 const store = usePluginStore()
 const { isRegistryLoading } = storeToRefs(store)
 

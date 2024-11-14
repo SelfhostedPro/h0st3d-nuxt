@@ -26,8 +26,8 @@
                 <Button variant="outline" @click="$emit('update:open', false)">
                     Cancel
                 </Button>
-                <Button :disabled="!selectedPlugin || isLoading" @click="$emit('install')">
-                    {{ isLoading ? 'Installing...' : 'Install' }}
+                <Button :disabled="!selectedPlugin || isLoading" @click="$emit('download')">
+                    {{ isLoading ? 'Installing...' : 'Download' }}
                 </Button>
             </DialogFooter>
         </DialogContent>
@@ -50,7 +50,7 @@ defineProps<{
 defineEmits<{
     'update:open': [value: boolean]
     'update:selectedPlugin': [AddPlugin | null]
-    install: []
+    download: []
 }>()
 
 onMounted(() => {

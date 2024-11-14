@@ -1,6 +1,7 @@
 import { defineEventHandler } from 'h3'
-import { getPluginsState } from '~~/server/utils/plugins/plugin-state'
+import { pluginManager, PluginManager } from '~~/server/utils/plugins/plugin-manager'
 
 export default defineEventHandler(async () => {
-  return await getPluginsState()
+  const plugins = await pluginManager.getPlugins()
+  return plugins
 })

@@ -3,7 +3,7 @@ import type { ExternalPluginManifest, Plugin, PluginManifest, PluginRegistry } f
 
 export const usePluginStore = defineStore('plugin', {
     state: () => ({
-        installedPlugins: [] as Plugin[],
+        downloadedPlugins: {} as Record<string, Plugin>,
         registries: [] as PluginRegistry[],
         registryPlugins: {} as { [key: string]: ExternalPluginManifest[] },
         isLoading: false,
@@ -17,7 +17,6 @@ export const usePluginStore = defineStore('plugin', {
             this.isLoading = true
             this.error = null
             try {
-                console.log('Installing plugin:', plugin)
                 await $fetch('/api/plugins/download', {
                     method: 'POST',
                     body: plugin
@@ -35,11 +34,11 @@ export const usePluginStore = defineStore('plugin', {
             this.isLoading = true
             try {
                 const response = await $fetch<Record<string, Plugin>>('/api/plugins/list')
-                this.installedPlugins = Object.values(response)
+                this.downloadedPlugins = response
             } catch (err: any) {
                 console.error('Failed to refresh plugins:', err)
                 this.error = 'Failed to load plugins'
-                this.installedPlugins = []
+                this.downloadedPlugins = {}
             } finally {
                 this.isLoading = false
             }

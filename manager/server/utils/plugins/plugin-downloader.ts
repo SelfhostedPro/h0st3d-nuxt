@@ -18,9 +18,6 @@ export class PluginDownloader {
         throw new Error(`Registry ${registryName} not found`)
       }
 
-      console.log(`Downloading plugin ${pluginName} from ${registry.url}`)
-      console.log(`Saving to ${storagePath}/${targetDir}`)
-
       // Download using giget
       const result = await downloadTemplate(pluginName, {
         dir: `${storagePath}/downloaded/${targetDir}`,

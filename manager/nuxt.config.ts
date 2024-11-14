@@ -36,7 +36,7 @@ export default defineNuxtConfig({
       plugins: [],
     }
   },
-  devtools: { enabled: true },
+  devtools: { enabled: true,  },
   modules: [
     '@vueuse/nuxt',
     '@nuxtjs/tailwindcss',
